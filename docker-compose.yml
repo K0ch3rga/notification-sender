@@ -1,4 +1,14 @@
 services:
+  gateway:
+    container_name: gateway
+    build:
+      context: ./gateway
+      dockerfile: ./dockerfile
+    ports:
+      - 25680:8080
+    networks:
+      - default
+
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     environment:
@@ -11,6 +21,7 @@ services:
 
   kafka:
     image: confluentinc/cp-kafka:latest
+    container_name: kafka
     depends_on:
       - zookeeper
     ports:
