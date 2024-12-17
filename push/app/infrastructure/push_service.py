@@ -1,14 +1,8 @@
 import requests
-from app import db
-from app.models import Notification
-from app.utils.logger import logger
+from push.app.infrastructure.database import db
 
 class PushService:
-    def __init__(self, app=None):
-        if app is not None:
-            self.init_app(app)
-
-    def init_app(self, app):
+    def __init__(self, app):
         self.api_key = app.config['PUSH_NOTIFICATION_API_KEY']
 
     def send_push_notification(self, notification):
@@ -17,7 +11,8 @@ class PushService:
             'Content-Type': 'application/json'
         }
         payload = {
-            'recipient': notification.recipient,
+            'recipient': notification.address,
+            'title': notification.title,
             'message': notification.message
         }
         try:

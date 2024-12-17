@@ -1,8 +1,10 @@
-from app import db
+from push.app.infrastructure.database import db
 
 class Notification(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    recipient = db.Column(db.String(128), nullable=False)
+    notification_type = db.Column(db.String(32), nullable=False)
+    address = db.Column(db.String(128), nullable=False)
+    title = db.Column(db.String(128), nullable=False)
     message = db.Column(db.Text, nullable=False)
     status = db.Column(db.String(32), nullable=False)
     attempts = db.Column(db.Integer, default=0)
