@@ -1,0 +1,12 @@
+# ide
+.vs
+.vscode/*
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+.venv
+.env
