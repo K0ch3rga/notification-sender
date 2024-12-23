@@ -1,4 +1,9 @@
 from flask_sqlalchemy import SQLAlchemy
-from push.app.domain.models import Notification
 
-db = SQLAlchemy(model_class=Notification)
+db = SQLAlchemy()
+
+def init_app(app):
+    db.init_app(app)
+    with app.app_context():
+        from push.app.domain.models import Notification
+        db.create_all()
