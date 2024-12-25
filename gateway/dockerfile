@@ -1,4 +1,6 @@
 FROM golang:latest AS builder
+LABEL part=build
+LABEL project=notification-sender
 WORKDIR /app
 # add go.sum
 COPY go.mod ./ 
