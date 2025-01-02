@@ -7,7 +7,7 @@ export class NotificationEntity {
     id!: number;
 
     @Column({type: 'varchar'})
-    type!: "email" | "tg" | "push";
+    type!: "email" | "telegram" | "push";
 
     @Column({type: 'varchar'})
     email!: string;

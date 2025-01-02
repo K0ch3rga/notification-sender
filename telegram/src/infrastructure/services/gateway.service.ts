@@ -20,7 +20,7 @@ export class GatewayService {
     async sendNotification(notification: Notification, retry?: boolean): Promise<void> {
         try {
             const messageDTO = new MessageDTO(notification.type, notification.address, notification.title, notification.message)
-            const response = await fetch(`${this.gatewayUrl}/notifications`, {
+            const response = await fetch(`${this.gatewayUrl}/send`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -36,7 +36,7 @@ export class GatewayService {
             }
 
             console.log(`Notification ${retry ? 're' : ''}sent successfully`);
-            logger.info("Уведомление от пользователя отправлено", notification);
+            logger.info(`Уведомление от пользователя отправлено ${response.body} ||| ${JSON.stringify(messageDTO)}`);
         } catch (error) {
             if (retry) {
                 await this.db.updatePendingGatewayNotificationRetryCount(notification, notification.retryCount! + 1)
@@ -47,7 +47,7 @@ export class GatewayService {
             }
             console.error('Error sending notification:', error);
 
-            logger.error("Уведомление от пользователя не отправлено", notification);
+            logger.error(`Уведомление от пользователя не отправлено:`, notification.address);
         }
     }
 

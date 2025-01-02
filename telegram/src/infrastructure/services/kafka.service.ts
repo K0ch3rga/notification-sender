@@ -22,9 +22,9 @@ export const startKafkaConsumer = async (telegram: TelegramService) => {
                     const {type, address, title, message: text} = JSON.parse(message.value?.toString() || '');
                     const messageDTO = new MessageDTO(type, address, title, text);
 
-                    console.log(`Получено сообщение из Kafka: Type: ${messageDTO.type}, Address: ${messageDTO.address}, Title: ${messageDTO.title}, Message: ${messageDTO.message}`);
+                    console.log(`Получено сообщение из Kafka: type: ${messageDTO.type}, address: ${messageDTO.address}, title: ${messageDTO.title}, message: ${messageDTO.message}`);
 
-                    if (messageDTO.type === 'tg') {
+                    if (messageDTO.type === 'telegram') {
                         telegram.sendMessage(messageDTO)
                     }
                 } catch (error) {

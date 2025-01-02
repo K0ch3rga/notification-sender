@@ -33,7 +33,7 @@ const run = async () => {
     console.log('Producer connected');
 
     // Пример отправки сообщения
-    const message = new MessageDTO('tg', 'AAA@AAA.AA', 'Молоко убежало', 'У тебя убежало молоко');
+    const message = new MessageDTO('telegram', 'AAA@AAA.AA', 'Молоко убежало', 'У тебя убежало молоко');
 
     await sendMessage(message);
 

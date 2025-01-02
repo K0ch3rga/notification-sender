@@ -64,7 +64,7 @@ export class TelegramService {
             const {notificationData} = userState;
 
             if (!notificationData.type) {
-                notificationData.type = text as 'email' | 'tg' | 'push';
+                notificationData.type = text as 'email' | 'telegram' | 'push';
                 await ctx.reply('Введите адрес (email):');
                 return;
             }
@@ -111,7 +111,7 @@ export class TelegramService {
 
         if (data === 'create_notification') {
             userState.notificationData = {};
-            await ctx.reply('Введите тип уведомления (email, tg, push):');
+            await ctx.reply('Введите тип уведомления (email, telegram, push):');
             return;
         }
 

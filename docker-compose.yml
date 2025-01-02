@@ -8,20 +8,24 @@ services:
       - 25680:8080
     networks:
       - default
+      - app-network
 
   telegram:
     build:
       context: ./telegram
       dockerfile: Dockerfile
     container_name: telegram
-    #    environment:
-    #      - KAFKA_BROKER=kafka:9092
-    #      - DB_HOST=postgres
-    #      - DB_PORT=5432
-    #      - DB_USERNAME=postgres
-    #      - DB_PASSWORD=etk
-    #      - DB_NAME=notifications_db
-    #      - GATEWAY_URL=gateway:8080
+    environment:
+      - KAFKA_BROKER=kafka:29092
+      - KAFKA_CLIENT_ID=telegram-service
+      - KAFKA_GROUP_ID=telegram-group
+      - KAFKA_TOPIC=telegram
+      - DB_HOST=tg_db
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=etk
+      - DB_NAME=notifications_db
+      - GATEWAY_URL=http://gateway:8080
     #      - TELEGRAM_TOKEN=your_telegram_bot_token
     depends_on:
       - tg_db
@@ -29,6 +33,7 @@ services:
       - gateway
     networks:
       - app-network
+      - kafka
     ports:
       - '8090:8080'
 

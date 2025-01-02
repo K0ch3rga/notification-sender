@@ -1,3 +1,3 @@
 export const gatewayConfig = {
-    url: 'localhost:25680',
+    url: process.env.GATEWAY_URL || 'http://gateway:8080',
 };
