@@ -1,7 +1,8 @@
 Flask
 Flask-SQLAlchemy
 requests
-kafka-python
 psycopg2-binary
 python-dotenv
 alembic==1.14.0
+kafka-python==2.0.1
+six==1.17.0

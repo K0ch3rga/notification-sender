@@ -1,9 +1,10 @@
 from flask import Flask
-from push.app.config import Config
-from push.app.infrastructure.database import db
-from push.app.infrastructure.kafka_consumer import KafkaConsumer
-from push.app.infrastructure.push_service import PushService
-from push.app.interfaces.routes import register_routes
+from app.config import Config
+from app.infrastructure.database import db
+from app.infrastructure.kafka_consumer import KafkaConsumer
+from app.infrastructure.push_service import PushService
+from app.interfaces.routes import register_routes
+
 
 def create_app():
     app = Flask(__name__)
