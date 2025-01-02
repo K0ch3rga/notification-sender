@@ -21,7 +21,8 @@ services:
 
   # reachable on 9092 from the host and on 29092 from inside docker compose
   kafka:
-    image: confluentinc/cp-kafka:latest
+    image: &kafka-image confluentinc/cp-kafka:latest
+    container_name: kafka
     depends_on:
       - zookeeper
     ports:
@@ -41,23 +42,14 @@ services:
       - push
 
   init-kafka:
-    image: confluentinc/cp-kafka:latest
+    image: *kafka-image
+    container_name: init-kafka
     depends_on:
       - kafka
     entrypoint: ['/bin/sh', '-c']
-    command: |
-      "
-      # blocks until kafka is reachable
-      kafka-topics --bootstrap-server kafka:29092 --list
-
-      echo -e 'Creating kafka topics'
-      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic email --replication-factor 1 --partitions 1
-      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic push --replication-factor 1 --partitions 1
-      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic telegram --replication-factor 1 --partitions 1
-
-      echo -e 'Successfully created the following topics:'
-      kafka-topics --bootstrap-server kafka:29092 --list
-      "
+    command: /etc/kafka-conf.sh
+    volumes:
+      - ./config/kafka-conf.sh:/etc/kafka-conf.sh
     networks:
       - kafka
 

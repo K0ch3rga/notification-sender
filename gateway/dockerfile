@@ -2,8 +2,7 @@ FROM golang:latest AS builder
 LABEL part=build
 LABEL project=notification-sender
 WORKDIR /app
-# add go.sum
-COPY go.mod ./ 
+COPY go.mod go.sum ./ 
 RUN go mod download
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -o myapp .

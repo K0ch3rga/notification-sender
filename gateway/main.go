@@ -1,38 +1,27 @@
 package main
 
 import (
-	"fmt"
+	"gateway/application"
+	"gateway/infrastructure"
+	"gateway/presentation"
+	"log/slog"
 	"net/http"
-	"strings"
 )
 
 func main() {
-	http.HandleFunc("/", handle)
-	http.HandleFunc("/log", log)
-	http.ListenAndServe(":8080", nil)
-}
+	// Initialize Kafka producer
+	producer := infrastructure.NewKafkaProducer("kafka:29092")
 
-func getpath(path string) (module, mode, val string) {
-	parts := strings.Split(path, "/")
-	switch len(parts) {
-	case 4:
-		val = parts[3]
-		fallthrough
-	case 3:
-		mode = parts[2]
-		fallthrough
-	case 2:
-		module = parts[1]
+	// Initialize use case and handler
+	messageUseCase := application.NewMessageUseCase(*producer)
+	messageHandler := presentation.NewMessageHandler(messageUseCase)
+
+	// Set up HTTP server and routes
+	http.HandleFunc("/send", messageHandler.HandleSendMessage)
+
+	slog.Info("Starting server on :8080")
+
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		slog.Error(err.Error())
 	}
-	return // Named return values are used, so just return here
-}
-
-func handle(w http.ResponseWriter, r *http.Request) {
-	module, mode, val := getpath(r.URL.Path)
-	fmt.Println(module, mode, val)
-	http.Post(val+"/log", "application/json", r.Body)
-}
-
-func log(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, World!")
 }
