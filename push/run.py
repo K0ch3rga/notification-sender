@@ -20,7 +20,8 @@ app.register_blueprint(bp)
 
 @app.route('/push')
 def push():
-    return render_template('push_service.html')
+    notifications = notification_repository.get_all()
+    return render_template('push_service.html', notifications=notifications)
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -13,3 +13,6 @@ class NotificationRepository:
 
     def get_by_id(self, notification_id):
         return Notification.query.get(notification_id)
+
+    def get_all(self):
+        return Notification.query.all()
