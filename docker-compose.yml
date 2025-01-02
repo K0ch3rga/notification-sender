@@ -36,6 +36,10 @@ services:
       - kafka
     ports:
       - '8090:8080'
+    develop:
+      watch:
+        - action: rebuild
+          path: .
 
   tg_db:
     image: postgres:16
