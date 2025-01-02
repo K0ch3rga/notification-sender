@@ -5,13 +5,13 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: notification-service
-#    environment:
+    environment:
 #      - KAFKA_BROKER=kafka:9092
-#      - DB_HOST=postgres
-#      - DB_PORT=5432
-#      - DB_USERNAME=postgres
-#      - DB_PASSWORD=etk
-#      - DB_NAME=notifications_db
+      - DB_HOST=tg_db
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=etk
+      - DB_NAME=notifications_db
 #      - GATEWAY_URL=gateway:8080
 #      - TELEGRAM_TOKEN=your_telegram_bot_token
     depends_on:
@@ -21,7 +21,7 @@ services:
     networks:
       - app-network
     ports:
-      - '8080:8080'
+      - '8081:8081'
 
   postgres:
     image: postgres:16

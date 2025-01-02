@@ -17,7 +17,7 @@ COPY . .
 RUN npm install -g ts-node
 
 # Указываем порт для прослушивания
-EXPOSE 8080
+EXPOSE 8081
 
 # Команда запуска
 CMD ["ts-node", "src/index.ts"]
