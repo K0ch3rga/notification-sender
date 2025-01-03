@@ -23,6 +23,10 @@ jobs:
           chmod +x ./.github/workflows/healthcheck.sh
           ./.github/workflows/healthcheck.sh push 60
 
+      - name: Print container logs on failure
+        if: failure()
+        run: docker logs "${{ job.services.push.id }}"
+
       # - name: Check container health
       #   uses: docker/compose-health-check@v1
       #   with:
