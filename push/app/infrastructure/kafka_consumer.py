@@ -1,4 +1,4 @@
-from kafka import KafkaConsumer
+import kafka
 from app.domain.repositories import NotificationRepository
 from app.infrastructure.push_service import PushService
 from app.domain.services import NotificationService
@@ -8,7 +8,7 @@ import json
 
 class KafkaConsumer:
     def __init__(self, app):
-        self.consumer = KafkaConsumer(
+        self.consumer = kafka.KafkaConsumer(
             app.config["KAFKA_TOPIC"],
             bootstrap_servers=app.config["KAFKA_BOOTSTRAP_SERVERS"],
             auto_offset_reset="earliest",
