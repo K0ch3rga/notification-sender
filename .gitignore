@@ -9,6 +9,5 @@
 *.sw?
 
 .venv
-.env
 
 __pycache__
