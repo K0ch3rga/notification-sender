@@ -20,8 +20,8 @@ jobs:
 
       - name: Check container health
         run: |
-          chmod +x healthcheck.sh
-          ./healthcheck.sh push 60
+          chmod +x ./.github/workflows/healthcheck.sh
+          ./.github/workflows/healthcheck.sh push 60
 
       # - name: Check container health
       #   uses: docker/compose-health-check@v1
