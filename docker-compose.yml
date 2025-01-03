@@ -142,6 +142,10 @@ services:
       - push
     depends_on:
       - push_db
+    develop:
+      watch:
+        - action: rebuild
+          path: ./push
 
   push_db:
     image: postgres:16
