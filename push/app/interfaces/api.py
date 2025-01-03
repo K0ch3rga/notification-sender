@@ -21,3 +21,8 @@ def send_notification():
         jsonify({"message": "Notification sent", "notification_id": notification.id}),
         202,
     )
+
+
+@bp.route("/health", methods=["GET"])
+def health():
+    return jsonify(status="healthy"), 200
