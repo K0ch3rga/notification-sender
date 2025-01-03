@@ -25,7 +25,7 @@ jobs:
 
       - name: Print container logs on failure
         if: failure()
-        run: docker logs "${{ job.services.push.id }}"
+        run: docker logs push
 
       # - name: Check container health
       #   uses: docker/compose-health-check@v1
