@@ -83,6 +83,7 @@ services:
     networks:
       - kafka
       - default
+      - push
 
   init-kafka:
     image: *kafka-image
@@ -173,9 +174,46 @@ services:
     networks:
       - monitoring
 
+  push:
+    build:
+      context: push
+      dockerfile: ./dockerfile
+    container_name: push
+    env_file:
+      - push/.env
+    command: sh -c "alembic upgrade head && flask run --host=0.0.0.0 --port=8000"
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8000/health']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - push
+    depends_on:
+      - push_db
+    develop:
+      watch:
+        - action: rebuild
+          path: ./push
+
+  push_db:
+    image: postgres:16
+    container_name: push_db
+    networks:
+      - push
+    env_file:
+      - path: push/.env
+        required: true
+    environment:
+      - POSTGRES_USER=${PUSH_POSTGRES_USER?Variable not set}
+      - POSTGRES_DB=${PUSH_POSTGRES_DB?Variable not set}
+      - POSTGRES_PASSWORD=${PUSH_POSTGRES_PASSWORD?Variable not set}
+
 networks:
   default:
   monitoring:
   kafka:
+  push:
   app-network:
     driver: bridge

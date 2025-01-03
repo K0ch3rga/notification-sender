@@ -9,7 +9,6 @@
 *.sw?
 
 .venv
-.env
 
 __pycache__
 /tmp
