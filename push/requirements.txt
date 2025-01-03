@@ -6,4 +6,3 @@ python-dotenv
 alembic==1.14.0
 kafka-python-ng
 six==1.17.0
-uvicorn
