@@ -19,7 +19,7 @@ export const startKafkaConsumer = async (telegram: TelegramService) => {
             eachMessage: async ({ message }) => {
                 try {
                     logger.info(`Сообщение из Kafka получено ${JSON.stringify(JSON.parse(message.value?.toString() ?? ''))}`);
-                    const {Type:type, Address:address, Title:title, Message: text} = JSON.parse(JSON.stringify(JSON.parse(message.value?.toString() ?? '')));
+                    const {type, address, title, message: text} = JSON.parse(JSON.stringify(JSON.parse(message.value?.toString() ?? '')));
                     const messageDTO = new MessageDTO(type, address, title, text);
 
                     console.log(`Получено сообщение из Kafka: type: ${messageDTO.type}, address: ${messageDTO.address}, title: ${messageDTO.title}, message: ${messageDTO.message}`);
