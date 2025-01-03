@@ -19,8 +19,13 @@ jobs:
         run: docker-compose up -d
 
       - name: Check container health
-        uses: docker/compose-health-check@v1
-        with:
-          compose-file: docker-compose.yml
-          max-retries: 5
-          retry-interval: 10
+        run: |
+          chmod +x healthcheck.sh
+          ./healthcheck.sh push 60
+
+      # - name: Check container health
+      #   uses: docker/compose-health-check@v1
+      #   with:
+      #     compose-file: docker-compose.yml
+      #     max-retries: 5
+      #     retry-interval: 10
