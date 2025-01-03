@@ -1,4 +1,5 @@
-from push.app.domain.models import Notification
+from app.domain.models import Notification
+
 
 class NotificationRepository:
     def __init__(self, db):

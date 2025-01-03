@@ -3,5 +3,5 @@ RUN mkdir /push
 WORKDIR /push
 COPY ./requirements.txt /push/requirements.txt
 RUN pip install --no-cache-dir --upgrade -r /push/requirements.txt
-ENV PYTHONPATH=/app
+ENV PYTHONPATH=/push
 COPY . .

@@ -1,4 +1,5 @@
-from push.app.infrastructure.database import db
+from app.infrastructure.database import db
+
 
 class Notification(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -11,4 +12,4 @@ class Notification(db.Model):
     log = db.Column(db.Text, nullable=True)
 
     def __repr__(self):
-        return f'<Notification {self.id}>'
+        return f"<Notification {self.id}>"
