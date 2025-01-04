@@ -8,7 +8,7 @@ kafka-topics --bootstrap-server kafka:29092 --list
 
 topics=(
   "email"
-  "push"
+  "push_notifications"
   "telegram"
 )
 

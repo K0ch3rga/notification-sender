@@ -8,6 +8,50 @@ services:
       - 25680:8080
     networks:
       - default
+      - app-network
+
+  telegram:
+    build:
+      context: ./telegram
+      dockerfile: Dockerfile
+    container_name: telegram
+    environment:
+      - KAFKA_BROKER=kafka:29092
+      - KAFKA_CLIENT_ID=telegram-service
+      - KAFKA_GROUP_ID=telegram-group
+      - KAFKA_TOPIC=telegram
+      - DB_HOST=tg_db
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=etk
+      - DB_NAME=notifications_db
+      - GATEWAY_URL=http://gateway:8080
+    #      - TELEGRAM_TOKEN=your_telegram_bot_token
+    depends_on:
+      - tg_db
+      - kafka
+      - gateway
+    networks:
+      - app-network
+      - kafka
+    ports:
+      - '8090:8080'
+    develop:
+      watch:
+        - action: rebuild
+          path: ./telegram
+
+  tg_db:
+    image: postgres:16
+    container_name: tg_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: etk
+      POSTGRES_DB: notifications_db
+    ports:
+      - '5433:5432'
+    networks:
+      - app-network
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
@@ -39,6 +83,7 @@ services:
     networks:
       - kafka
       - default
+      - push
       - email
 
   init-kafka:
@@ -130,6 +175,45 @@ services:
     networks:
       - monitoring
 
+  push:
+    build:
+      context: push
+      dockerfile: ./dockerfile
+    container_name: push
+    env_file:
+      - .env
+    command: sh -c "alembic upgrade head && flask run --host=0.0.0.0 --port=8000"
+    ports:
+      - '8000:8000'
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8000/api/health']
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - push
+    depends_on:
+      - push_db
+      - kafka
+    develop:
+      watch:
+        - action: rebuild
+          path: ./push
+
+  push_db:
+    image: postgres:16
+    container_name: push_db
+    networks:
+      - push
+    env_file:
+      - path: push/.env
+        required: true
+    environment:
+      - POSTGRES_USER=${PUSH_POSTGRES_USER?Variable not set}
+      - POSTGRES_DB=${PUSH_POSTGRES_DB?Variable not set}
+      - POSTGRES_PASSWORD=${PUSH_POSTGRES_PASSWORD?Variable not set}
+
   email:
     container_name: email
     build:
@@ -160,4 +244,7 @@ networks:
   default:
   monitoring:
   kafka:
+  push:
+  app-network:
+    driver: bridge
   email:
