@@ -15,6 +15,8 @@ def create_app():
     push_service = PushService(app)
 
     with app.app_context():
+        from app.domain.models import Notification
+
         register_routes(app)
         db.create_all()
 
