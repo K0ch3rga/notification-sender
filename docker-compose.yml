@@ -84,6 +84,7 @@ services:
       - kafka
       - default
       - push
+      - email
 
   init-kafka:
     image: *kafka-image
@@ -213,6 +214,32 @@ services:
       - POSTGRES_DB=${PUSH_POSTGRES_DB?Variable not set}
       - POSTGRES_PASSWORD=${PUSH_POSTGRES_PASSWORD?Variable not set}
 
+  email:
+    container_name: email
+    build:
+      context: ./email
+      dockerfile: ./Dockerfile
+    depends_on:
+      - email_db
+      - kafka
+      - gateway
+    networks:
+      - email
+    develop:
+      watch:
+        - action: rebuild
+          path: ./email
+
+  email_db:
+    image: postgres:16
+    container_name: email_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Hjrth2013
+      POSTGRES_DB: mailMesseges
+    networks:
+      - email
+
 networks:
   default:
   monitoring:
@@ -220,3 +247,4 @@ networks:
   push:
   app-network:
     driver: bridge
+  email:
