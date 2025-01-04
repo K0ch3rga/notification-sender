@@ -1,0 +1,135 @@
+services:
+  gateway:
+    container_name: gateway
+    build:
+      context: ./gateway
+      dockerfile: ./dockerfile
+    ports:
+      - 25680:8080
+    networks:
+      - default
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    ports:
+      - '2181:2181'
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    networks:
+      - kafka
+
+  # reachable on 9092 from the host and on 29092 from inside docker compose
+  kafka:
+    image: &kafka-image confluentinc/cp-kafka:latest
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - '9092:9092'
+    expose:
+      - '29092'
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: '1'
+      KAFKA_MIN_INSYNC_REPLICAS: '1'
+    networks:
+      - kafka
+      - default
+
+  init-kafka:
+    image: *kafka-image
+    container_name: init-kafka
+    depends_on:
+      - kafka
+    entrypoint: ['/bin/sh', '-c']
+    command: /etc/kafka-conf.sh
+    volumes:
+      - ./config/kafka-conf.sh:/etc/kafka-conf.sh
+    networks:
+      - kafka
+
+  loki:
+    image: grafana/loki:2.6.1
+    container_name: loki
+    ports:
+      - '3100:3100'
+    volumes:
+      - ./config/loki.yml:/loki.yml
+    networks:
+      - monitoring
+
+  promtail:
+    image: grafana/promtail:2.6.1
+    container_name: promtail
+    volumes:
+      - ./config/promtail.yaml:/etc/promtail/config.yml
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/containers:/var/lib/docker/containers
+    command: ['-config.file=/etc/promtail/config.yml']
+    networks:
+      - monitoring
+
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node_exporter
+    ports:
+      - '9100:9100'
+    networks:
+      - monitoring
+
+  cadvisor:
+    image: google/cadvisor:latest
+    container_name: cadvisor
+    ports:
+      - '8080:8080'
+    volumes:
+      - /:/rootfs:ro # read-only system level metrics
+      - /var/run:/var/run:rw # runtime information of pid and sockets backup for docker socket
+      - /sys:/sys:ro # kernel data with main stats
+      - /var/lib/docker/:/var/lib/docker:ro # docker disk usage
+      - /var/run/docker.sock:/var/run/docker.sock # docker socket musthave
+      - /etc/machine-id:/etc/machine-id:ro # identifies machine
+      - /var/lib/dbus/machine-id:/var/lib/dbus/machine-id:ro # same as previous
+    devices:
+      - /dev/kmsg:/dev/kmsg # collects Out Of Memory events
+    networks:
+      - monitoring
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - '9090:9090'
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    depends_on:
+      - cadvisor
+      - node_exporter
+    networks:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./config/grafana.yml:/etc/grafana/provisioning/datasources/datasource.yaml
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+      - loki
+    networks:
+      - monitoring
+
+networks:
+  default:
+  monitoring:
+  kafka:
