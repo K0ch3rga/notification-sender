@@ -2,6 +2,7 @@ from app.infrastructure.database import db
 
 
 class Notification(db.Model):
+    __tablename__ = "notifications"
     id = db.Column(db.Integer, primary_key=True)
     notification_type = db.Column(db.String(32), nullable=False)
     address = db.Column(db.String(128), nullable=False)
