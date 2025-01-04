@@ -15,4 +15,4 @@
 ### Важные ссылки
 - [Тг бот](http://t.me/Notification_micro_bot?start)
 - [Визуализация данных](http://localhost:3000/)
-- [Фронт]()
+- [Фронт](http://localhost:8000)
