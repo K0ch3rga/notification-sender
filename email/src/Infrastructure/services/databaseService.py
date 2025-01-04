@@ -1,6 +1,5 @@
 from sqlalchemy import insert, select, delete
-
-from src.Infrastructure.DatabaseOrEntities.database import sync_engine
+from src.Infrastructure.Database.database import sync_engine
 # from models import Workload, metadata_obj, resumes_table, workers_table
 from src.DomainOrModels.models import metadata_obj, mails_table
 def create_tables():
