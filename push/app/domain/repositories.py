@@ -15,5 +15,10 @@ class NotificationRepository:
     def get_by_id(self, notification_id):
         return Notification.query.get(notification_id)
 
-    def get_all(self):
+    @staticmethod
+    def get_all():
         return Notification.query.all()
+
+    @staticmethod
+    def get_by_email(email):
+        return Notification.query.get(email)
