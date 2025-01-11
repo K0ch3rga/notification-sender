@@ -1,5 +1,6 @@
 Flask
 Flask-SQLAlchemy
+Flask-Session
 requests
 psycopg2-binary
 python-dotenv
