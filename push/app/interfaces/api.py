@@ -1,28 +1,28 @@
-from flask import Blueprint, request, jsonify, current_app
-from app.domain.services import NotificationService
+from flask import Blueprint, request, jsonify
+from app.infrastructure.database import PostgresNotificationRepository
+from app.application.usecases.notification_usecase import NotificationUseCase
 from app.infrastructure.database import db
-from app.domain.repositories import NotificationRepository
 
-bp = Blueprint("api", __name__)
+api = Blueprint("api", __name__)
+
+notification_repo = PostgresNotificationRepository(db.session)
+notification_use_case = NotificationUseCase(notification_repo)
 
 
-@bp.route("/send", methods=["POST"])
+@api.route("/send", methods=["POST"])
 def send_notification():
-    notification_service = current_app.notification_service
     data = request.json
     notification_type = data.get("Type")
     address = data.get("Address")
     title = data.get("Title")
     message = data.get("Message")
-    notification = notification_service.send_notification(
-        notification_type, address, title, message
-    )
+    notification = notification_use_case.create_notification()
     return (
         jsonify({"message": "Notification sent", "notification_id": notification.id}),
         202,
     )
 
 
-@bp.route("/health", methods=["GET"])
+@api.route("/health", methods=["GET"])
 def health():
     return jsonify(status="healthy"), 200

@@ -1,16 +1,22 @@
-from flask import Blueprint, render_template, request, jsonify, current_app
-from app.domain.services import NotificationService
-from app.infrastructure.database import db
-from app.domain.repositories import NotificationRepository
+from flask import Blueprint, render_template, jsonify
+from app.infrastructure.database import PostgresNotificationRepository, db
+from app.application.usecases.notification_usecase import NotificationUseCase
+
 
 pages = Blueprint("/", __name__)
+
+notification_repo = PostgresNotificationRepository(db.session)
+notification_use_case = NotificationUseCase(notification_repo)
 
 
 @pages.route("/", methods=["GET"])
 def main_page():
-    # notifications = NotificationRepository.get_by_email("email")
-    notifications = NotificationRepository.get_all()
-    return render_template("push_service.html", notifications=notifications)
+    notifications = notification_repo.get_user_notifications(1)
+    return render_template(
+        "push_service.html",
+        notifications=notifications,
+        notification_use_case=notification_use_case,
+    )
 
 
 @pages.route("/login", methods=["GET"])

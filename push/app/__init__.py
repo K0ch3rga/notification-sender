@@ -1,23 +1,26 @@
 from flask import Flask
-from app.config import Config
-from app.infrastructure.database import db
-from app.infrastructure.kafka_consumer import KafkaConsumer
-from app.infrastructure.push_service import PushService
-from app.interfaces.routes import register_routes
+from .config import Config
+from .interfaces.routes import register_routes
+from .infrastructure.database import db, migrate
+from .infrastructure.kafka_consumer import KafkaConsumer
 
 
-def create_app():
-    app = Flask(__name__)
+def create_app() -> Flask:
+    app: Flask = Flask(__name__)
     app.config.from_object(Config)
 
     db.init_app(app)
-    kafka_consumer = KafkaConsumer(app)
-    push_service = PushService(app)
+    migrate.init_app(
+        app=app,
+        db=db,
+    )
 
     with app.app_context():
-        from app.domain.models import Notification
-
-        register_routes(app)
         db.create_all()
+
+    register_routes(app)
+
+    with app.app_context():
+        KafkaConsumer(app).start_consuming()
 
     return app

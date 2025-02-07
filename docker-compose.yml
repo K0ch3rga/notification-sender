@@ -5,41 +5,41 @@ services:
       context: ./gateway
       dockerfile: ./dockerfile
     ports:
-      - 25680:8080
+      - 2909:2909
     networks:
       - default
       - app-network
 
   # telegram:
-  #   build:
-  #     context: ./telegram
-  #     dockerfile: Dockerfile
-  #   container_name: telegram
-  #   environment:
-  #     - KAFKA_BROKER=kafka:29092
-  #     - KAFKA_CLIENT_ID=telegram-service
-  #     - KAFKA_GROUP_ID=telegram-group
-  #     - KAFKA_TOPIC=telegram
-  #     - DB_HOST=tg_db
-  #     - DB_PORT=5432
-  #     - DB_USERNAME=postgres
-  #     - DB_PASSWORD=etk
-  #     - DB_NAME=notifications_db
-  #     - GATEWAY_URL=http://gateway:8080
-  #   #      - TELEGRAM_TOKEN=your_telegram_bot_token
-  #   depends_on:
-  #     - tg_db
-  #     - kafka
-  #     - gateway
-  #   networks:
-  #     - app-network
-  #     - kafka
-  #   ports:
-  #     - '8090:8080'
-  #   develop:
-  #     watch:
-  #       - action: rebuild
-  #         path: ./telegram
+  # build:
+  #   context: ./telegram
+  #   dockerfile: Dockerfile
+  # container_name: telegram
+  # environment:
+  #   - KAFKA_BROKER=kafka:29092
+  #   - KAFKA_CLIENT_ID=telegram-service
+  #   - KAFKA_GROUP_ID=telegram-group
+  #   - KAFKA_TOPIC=telegram
+  #   - DB_HOST=tg_db
+  #   - DB_PORT=5432
+  #   - DB_USERNAME=postgres
+  #   - DB_PASSWORD=etk
+  #   - DB_NAME=notifications_db
+  #   - GATEWAY_URL=http://gateway:8080
+  #   - TELEGRAM_TOKEN=your_telegram_bot_token
+  # depends_on:
+  #   - tg_db
+  #   - kafka
+  #   - gateway
+  # networks:
+  #   - app-network
+  #   - kafka
+  # ports:
+  #   - '8090:8080'
+  # develop:
+  #   watch:
+  #     - action: rebuild
+  #       path: ./telegram
 
   # tg_db:
   #   image: postgres:16
@@ -63,7 +63,6 @@ services:
     networks:
       - kafka
 
-  # reachable on 9092 from the host and on 29092 from inside docker compose
   kafka:
     image: &kafka-image confluentinc/cp-kafka:latest
     container_name: kafka
@@ -85,6 +84,17 @@ services:
       - default
       - push
       - email
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'bash',
+          '-c',
+          "kafka-topics --bootstrap-server localhost:9092 --list | awk '/email/ && /push_notifications/ && /telegram/'",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   init-kafka:
     image: *kafka-image
@@ -98,91 +108,90 @@ services:
     networks:
       - kafka
 
-  loki:
-    image: grafana/loki:2.6.1
-    container_name: loki
-    ports:
-      - '3100:3100'
-    volumes:
-      - ./config/loki.yml:/loki.yml
-    networks:
-      - monitoring
+  # loki:
+  #   image: grafana/loki:2.6.1
+  #   container_name: loki
+  #   ports:
+  #     - '3100:3100'
+  #   volumes:
+  #     - ./config/loki.yml:/loki.yml
+  #   networks:
+  #     - monitoring
 
-  promtail:
-    image: grafana/promtail:2.6.1
-    container_name: promtail
-    volumes:
-      - ./config/promtail.yaml:/etc/promtail/config.yml
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /var/lib/docker/containers:/var/lib/docker/containers
-    command: ['-config.file=/etc/promtail/config.yml']
-    networks:
-      - monitoring
+  # promtail:
+  #   image: grafana/promtail:2.6.1
+  #   container_name: promtail
+  #   volumes:
+  #     - ./config/promtail.yaml:/etc/promtail/config.yml
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #     - /var/lib/docker/containers:/var/lib/docker/containers
+  #   command: ['-config.file=/etc/promtail/config.yml']
+  #   networks:
+  #     - monitoring
 
-  node_exporter:
-    image: quay.io/prometheus/node-exporter:latest
-    container_name: node_exporter
-    ports:
-      - '9100:9100'
-    networks:
-      - monitoring
+  # node_exporter:
+  #   image: quay.io/prometheus/node-exporter:latest
+  #   container_name: node_exporter
+  #   ports:
+  #     - '9100:9100'
+  #   networks:
+  #     - monitoring
 
-  cadvisor:
-    image: google/cadvisor:latest
-    container_name: cadvisor
-    ports:
-      - '8080:8080'
-    volumes:
-      - /:/rootfs:ro # read-only system level metrics
-      - /var/run:/var/run:rw # runtime information of pid and sockets backup for docker socket
-      - /sys:/sys:ro # kernel data with main stats
-      - /var/lib/docker/:/var/lib/docker:ro # docker disk usage
-      - /var/run/docker.sock:/var/run/docker.sock # docker socket musthave
-      - /etc/machine-id:/etc/machine-id:ro # identifies machine
-      - /var/lib/dbus/machine-id:/var/lib/dbus/machine-id:ro # same as previous
-    devices:
-      - /dev/kmsg:/dev/kmsg # collects Out Of Memory events
-    networks:
-      - monitoring
+  # cadvisor:
+  #   image: google/cadvisor:latest
+  #   container_name: cadvisor
+  #   ports:
+  #     - '8080:8080'
+  #   volumes:
+  #     - /:/rootfs:ro # read-only system level metrics
+  #     - /var/run:/var/run:rw # runtime information of pid and sockets backup for docker socket
+  #     - /sys:/sys:ro # kernel data with main stats
+  #     - /var/lib/docker/:/var/lib/docker:ro # docker disk usage
+  #     - /var/run/docker.sock:/var/run/docker.sock # docker socket musthave
+  #     - /etc/machine-id:/etc/machine-id:ro # identifies machine
+  #     - /var/lib/dbus/machine-id:/var/lib/dbus/machine-id:ro # same as previous
+  #   devices:
+  #     - /dev/kmsg:/dev/kmsg # collects Out Of Memory events
+  #   networks:
+  #     - monitoring
 
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
-    ports:
-      - '9090:9090'
-    volumes:
-      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-    depends_on:
-      - cadvisor
-      - node_exporter
-    networks:
-      - monitoring
+  # prometheus:
+  #   image: prom/prometheus:latest
+  #   container_name: prometheus
+  #   ports:
+  #     - '9090:9090'
+  #   volumes:
+  #     - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+  #   command:
+  #     - '--config.file=/etc/prometheus/prometheus.yml'
+  #   depends_on:
+  #     - cadvisor
+  #     - node_exporter
+  #   networks:
+  #     - monitoring
 
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana
-    ports:
-      - '3000:3000'
-    volumes:
-      - ./config/grafana.yml:/etc/grafana/provisioning/datasources/datasource.yaml
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-    depends_on:
-      - prometheus
-      - loki
-    networks:
-      - monitoring
+  # grafana:
+  #   image: grafana/grafana:latest
+  #   container_name: grafana
+  #   ports:
+  #     - '3000:3000'
+  #   volumes:
+  #     - ./config/grafana.yml:/etc/grafana/provisioning/datasources/datasource.yaml
+  #   environment:
+  #     - GF_SECURITY_ADMIN_PASSWORD=admin
+  #   depends_on:
+  #     - prometheus
+  #     - loki
+  #   networks:
+  #     - monitoring
 
   push:
     build:
       context: push
       dockerfile: ./dockerfile
     container_name: push
-    env_file:
-      - .env
-    command: sh -c "alembic upgrade head && flask run --host=0.0.0.0 --port=8000"
+    user: appuser
+    # command: sh -c "alembic upgrade head && flask run --host=0.0.0.0 --port=8000"
     ports:
       - '8000:8000'
     healthcheck:
@@ -194,51 +203,63 @@ services:
     networks:
       - push
     depends_on:
-      - push_db
-      - kafka
+      push_db:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      - KAFKA_BOOTSTRAP_SERVERS=${KAFKA_BOOTSTRAP_SERVERS:?Variable not set}
+      - KAFKA_TOPIC=${PUSH_KAFKA_TOPIC:?Variable not set}
+      - POSTGRES_USER=${PUSH_POSTGRES_USER:?Variable not set}
+      - POSTGRES_PASSWORD=${PUSH_POSTGRES_PASSWORD:?Variable not set}
+      - POSTGRES_DB=${PUSH_POSTGRES_DB:?Variable not set}
+      - POSTGRES_HOST=${PUSH_POSTGRES_HOST:?Variable not set}
     develop:
       watch:
-        - action: rebuild
+        - action: rebuild # sync
           path: ./push
+          # target: /app
 
   push_db:
     image: postgres:16
     container_name: push_db
     networks:
       - push
-    env_file:
-      - path: push/.env
-        required: true
     environment:
       - POSTGRES_USER=${PUSH_POSTGRES_USER?Variable not set}
-      - POSTGRES_DB=${PUSH_POSTGRES_DB?Variable not set}
       - POSTGRES_PASSWORD=${PUSH_POSTGRES_PASSWORD?Variable not set}
+      - POSTGRES_DB=${PUSH_POSTGRES_DB?Variable not set}
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', '${PUSH_POSTGRES_USER}', '-d', '${PUSH_POSTGRES_DB}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  email:
-    container_name: email
-    build:
-      context: ./email
-      dockerfile: ./Dockerfile
-    depends_on:
-      - email_db
-      - kafka
-      - gateway
-    networks:
-      - email
-    develop:
-      watch:
-        - action: rebuild
-          path: ./email
+  # email:
+  #   container_name: email
+  #   build:
+  #     context: ./email
+  #     dockerfile: ./Dockerfile
+  #   depends_on:
+  #     - email_db
+  #     - kafka
+  #     - gateway
+  #   networks:
+  #     - email
+  #   develop:
+  #     watch:
+  #       - action: rebuild
+  #         path: ./email
 
-  email_db:
-    image: postgres:16
-    container_name: email_db
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: Hjrth2013
-      POSTGRES_DB: mailMesseges
-    networks:
-      - email
+  # email_db:
+  # image: postgres:16
+  # container_name: email_db
+  # environment:
+  #   POSTGRES_USER: postgres
+  #   POSTGRES_PASSWORD: Hjrth2013
+  #   POSTGRES_DB: mailMesseges
+  # networks:
+  #   - email
 
 networks:
   default:

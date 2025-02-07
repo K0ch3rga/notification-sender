@@ -1,9 +1,17 @@
+# Flask
+# Flask-SQLAlchemy
+# Flask-Session
+# Flask-Migrate
+# requests
+# psycopg2-binary
+# python-dotenv
+# alembic==1.14.0
+# kafka-python-ng
+# six==1.17.0
+# dependency-injector
+
 Flask
 Flask-SQLAlchemy
-Flask-Session
-requests
-psycopg2-binary
-python-dotenv
-alembic==1.14.0
+Flask-Migrate
 kafka-python-ng
-six==1.17.0
+psycopg2-binary
