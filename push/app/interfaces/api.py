@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from app.infrastructure.database import PostgresNotificationRepository
 from app.application.usecases.notification_usecase import NotificationUseCase
 from app.infrastructure.database import db
+from app import Config
 
 api = Blueprint("api", __name__)
 

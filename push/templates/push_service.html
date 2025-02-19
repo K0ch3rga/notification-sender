@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Push service</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+
 <body>
     <header>
         <h1>Push service</h1>
@@ -19,7 +21,7 @@
     <main>
         <h1>Notifications List</h1>
         <ul>
-            {% for notification in notifications %}
+            <!-- {% for notification in notifications %}
                 <li>
                     <strong>ID:</strong> {{ notification.id }}<br>
                     <strong>Type:</strong> {{ notification.notification_type }}<br>
@@ -30,11 +32,12 @@
                     <strong>Attempts:</strong> {{ notification.attempts }}<br>
                     <strong>Log:</strong> {{ notification.log }}<br>
                 </li>
-            {% endfor %}
+            {% endfor %} -->
         </ul>
     </main>
     <footer>
         <p>&copy; 2024 Push service</p>
     </footer>
 </body>
+
 </html>
