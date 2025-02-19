@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from .config import Config
 from .interfaces.routes import register_routes
@@ -6,7 +7,7 @@ from .infrastructure.kafka_consumer import KafkaConsumer
 
 
 def create_app() -> Flask:
-    app: Flask = Flask(__name__)
+    app: Flask = Flask(__name__, template_folder=Config.TEMPLATE_FOLDER)
     app.config.from_object(Config)
 
     db.init_app(app)
@@ -17,10 +18,8 @@ def create_app() -> Flask:
 
     with app.app_context():
         db.create_all()
+        register_routes(app)
 
-    register_routes(app)
-
-    with app.app_context():
-        KafkaConsumer(app).start_consuming()
+    # KafkaConsumer(app).start_consuming()
 
     return app

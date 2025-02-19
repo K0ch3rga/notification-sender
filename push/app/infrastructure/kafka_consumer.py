@@ -21,19 +21,20 @@ class KafkaConsumer:
             self.notification_repository = PostgresNotificationRepository(db.session)
 
     def start_consuming(self):
-        try:
-            for message in self.consumer:
-                data = message.value
-                logger.log(level=logging.INFO, msg=message)
-                self.notification_repository.add_notification(
-                    notification=Notification(
-                        message=data.get("message"),
-                        address=data.get("address"),
-                        notification_type=data.get("type"),
-                        title=data.get("title"),
-                    ),
-                )
-        except Exception as e:
-            logger.error(f"Error processing Kafka message: {str(e)}")
-        finally:
-            self.consumer.close()
+        with self.app.app_context():
+            try:
+                for message in self.consumer:
+                    data = message.value
+                    logger.log(level=logging.INFO, msg=message)
+                    self.notification_repository.add_notification(
+                        notification=Notification(
+                            message=data.get("message"),
+                            address=data.get("address"),
+                            notification_type=data.get("type"),
+                            title=data.get("title"),
+                        ),
+                    )
+            except Exception as e:
+                logger.error(f"Error processing Kafka message: {str(e)}")
+            finally:
+                self.consumer.close()
